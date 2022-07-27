@@ -28,33 +28,40 @@
   </div>
 
   <!-- Nav Item - Pages Collapse Menu -->
+  @permission('permission-read')
   <li class="nav-item">
     <a class="nav-link collapsed" href="{{ route('user_manajemen') }}">
       <i class="fas fa-fw fa-cog"></i>
       <span>User Manajemen</span>
     </a>
   </li>
+  @endpermission
   <!-- Nav Item - Pages Collapse Menu -->
+  @permission('member-read')
   <li class="nav-item">
     <a class="nav-link collapsed" href="{{ route('member.index') }}">
       <i class="fas fa-fw fa-users"></i>
       <span>Member</span>
     </a>
   </li>
+  @endpermission
   <!-- Nav Item - Pages Collapse Menu -->
+  @permission('group-read')
   <li class="nav-item">
-    <a class="nav-link collapsed" href="{{ route('member.index') }}">
+    <a class="nav-link collapsed" href="{{ route('group.index') }}">
       <i class="fas fa-fw fa-users"></i>
       <span>Group</span>
     </a>
   </li>
+  @endpermission
+  @permission('users-read')
   <li class="nav-item">
-    <a class="nav-link collapsed" href="{{ route('member.index') }}">
+    <a class="nav-link collapsed" href="{{ route('user.index') }}">
       <i class="fas fa-fw fa-users"></i>
       <span>User</span>
     </a>
   </li>
-
+  @endpermission
   <!-- Divider -->
 
   <!-- Sidebar Toggler (Sidebar) -->

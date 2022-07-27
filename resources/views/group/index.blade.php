@@ -4,11 +4,11 @@
 <div class="container-fluid">
 
     <!-- Page Heading -->
-    <h1 class="h3 mb-2 text-gray-800">List Member</h1>
+    <h1 class="h3 mb-2 text-gray-800">List group</h1>
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <button class="btn btn-info btn-sm" id="add"><i class="fa fa-plus"></i> Tambah Member</button>
+            <button class="btn btn-info btn-sm" id="add"><i class="fa fa-plus"></i> Tambah group</button>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -16,11 +16,7 @@
                     <thead>
                         <tr>
                             <th>Nama</th>
-                            <th>Group</th>
-                            <th>Alamat</th>
-                            <th>No HP</th>
-                            <th>Email</th>
-                            <th>Foto</th>
+                            <th>Kota</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -39,46 +35,19 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="form" method="post" enctype="multipart/form-data" action="{{ route('member.store') }}">
+                <form id="form" method="post" enctype="multipart/form-data" action="{{ route('group.store') }}">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <input type="text" class="form-control member_id" name="id" id="member_id" hidden>
+                            <input type="text" class="form-control group_id" name="id" id="group_id" hidden>
                             <label for="exampleInputEmail1">Name</label>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Enter name">
                             <div class="text-danger" id="error-name"></div>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Group</label>
-                            <select type="text" class="form-control" name="group_id" id="group_id"
-                                placeholder="Enter group_id">
-                                <option value="" hidden selected>Pilih Group</option>
-                                @foreach ($groups as $group)
-                                <option value="{{ $group->id }}">{{ $group->name }} | {{ $group->city }}</option>
-                                @endforeach
-                            </select>
-                            <div class="text-danger" id="error-group_id"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Alamat</label>
-                            <input type="text" class="form-control" name="address" id="address"
-                                placeholder="Enter address">
-                            <div class="text-danger" id="error-address"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Nomor Telepon</label>
-                            <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone">
-                            <div class="text-danger" id="error-phone"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Email</label>
-                            <input type="text" class="form-control" name="email" id="email" placeholder="Enter email">
-                            <div class="text-danger" id="error-email"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Foto</label>
-                            <input type="file" class="form-control" name="file" id="file" placeholder="Enter picture">
-                            <div class="text-danger" id="error-file"></div>
+                            <label for="exampleInputEmail1">Kota</label>
+                            <input type="text" class="form-control" name="city" id="city" placeholder="Enter picture">
+                            <div class="text-danger" id="error-city"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -104,35 +73,31 @@
     $(document).ready(function () {
     // show data on page load
     table()
-  function table(){
-  var ta =  $('#dataTable').DataTable({
-        ajax: '{{ route("member.data") }}',
+    function table(){
+    var ta =  $('#dataTable').DataTable({
+        ajax: '{{ route("group.data") }}',
         columns: [
             { data: 'name' },
-            { data: 'group.name' },
-            { data: 'address' },
-            { data: 'phone' },
-            { data: 'email' },
-            { data: 'picture' },
+            { data: 'city' },
             { data: 'id' },
         ],
         columnDefs: [
-            { targets: 5,
-                render: function(data) {
-                    return '<img src="{{ asset("storage/member") }}/'+data+'" width="100px">'
-                }
-            },
-            { targets: 6,
+            { targets: 2,
                 render: function(id) {
                     return `
+                    @permission('group-update')
                     <button class="btn btn-info edit"><i class="fa fa-edit"></i></button>
+                    @endpermission
+                    @permission('group-delete')
+                    <button class="btn btn-danger delete" data-id"${id}"><i class="fa fa-trash"></i></button>
+                    @endpermission
                     `
                 }
             }   
         ]
     });
     
-    $("#dataTable tbody").on("click","button", function () {
+    $("#dataTable tbody").on("click",".edit", function () {
         var data= ta.row($(this).parents('tr')).data();
         console.log(data.id);
         $("#data").modal("show");
@@ -140,29 +105,69 @@
         $("#save").text("Update Data");
         // form
         $("#name").val(data.name);
-        $("#group_id").val(data.group_id);
-        $("#address").val(data.address);
-        $("#phone").val(data.phone);
-        $("#email").val(data.email);
-        $(".member_id").val(data.id);
-        $("#file").val(data.picture);
+        $("#city").val(data.city);
+        $("#group_id").val(data.id);
     });
-   }
 
+    $("#dataTable").on("click",'.delete', function(){
+        var data= ta.row($(this).parents('tr')).data();
+        let url = "{{ route('group.destroy',':id') }}";
+        url = url.replace(':id',data.id);
+        Swal.fire({
+            title: 'Apakah anda yakin?',
+            text: data.name + " akan dihapus!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Hapus!'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: url,
+                    type: "DELETE",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                success: function (data) {
+                    if(data.status == true){
+                        Swal.fire({
+                            customClass: {
+                                container: 'my-swal'
+                            },
+                            title: 'Berhasil!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonText: 'Ok'
+                        })
+                            // reset data
+                        setTimeout(function(){// wait for 5 secs(2)
+                        location.reload(); // then reload the page.(3)
+                        }, 1000);
+                    }else{
+                        Swal.fire(
+                            'Gagal!',
+                             data.message,
+                            'error'
+                            )
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+   }
 
    $("#add").click(function (e) { 
         e.preventDefault();
         $("#data").modal("show");
-        $("#title").text("Tambah Member");
+        $("#title").text("Tambah group");
         $("#save").text("Simpan");
         // form
         $("#name").val("");
+        $("#city").val("");
         $("#group_id").val("");
-        $("#address").val("");
-        $("#phone").val("");
-        $("#email").val("");
-        $("#file").val("");
-        $("#member_id").val("");
    });
 
    $("#save").click(function (e) { 
@@ -186,7 +191,7 @@
                         confirmButtonText: 'Ok'
                     });
                     setTimeout(function(){// wait for 5 secs(2)
-                    location.reload(); // then reload the page.(3)
+                        location.reload(); // then reload the page.(3)
                     }, 1000);
                 }else{
                     Swal.fire({

@@ -17,6 +17,14 @@ return [
             'member' => 'c,r,u,d',
             'users' => 'c,r,u,d',
             'permission' => 'c,r,u,d',
+            'group' => 'c,r,u,d',
+        ],
+        'user' => [
+            'role' => 'c,r,u,d',
+            'member' => 'c,r,u,d',
+            'users' => 'c,r,u,d',
+            'permission' => 'c,r,u,d',
+            // 'group' => 'c,r,u,d',
         ],
     ],
 

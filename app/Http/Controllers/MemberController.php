@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\MembersImport;
 use App\Models\Group;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MemberController extends Controller
 {
@@ -43,12 +45,6 @@ class MemberController extends Controller
     public function store(Request $request)
     {
         try {
-            if (auth()->user()->role_id != 0) {
-                return [
-                    'status' => false,
-                    'message' => 'You are not authorized to perform this action'
-                ];
-            }
             $data = Validator::make($request->all(), [
                 'name' => 'required',
                 'group_id' => 'required',
@@ -96,13 +92,13 @@ class MemberController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Tema berhasil ditambahkan',
+                'message' => 'Data berhasil ditambahkan',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'error' => $e->getMessage(),
-                'message' => 'Tema gagal ditambahkan',
+                'message' => 'Data gagal ditambahkan',
             ]);
         }
     }
@@ -113,6 +109,13 @@ class MemberController extends Controller
      * @param  \App\Models\Member  $member
      * @return \Illuminate\Http\Response
      */
+    public function import(Request $request)
+    {
+        Excel::import(new MembersImport, $request->file);
+
+        return back()->with(['success' => "Import Member berhasil"]);
+    }
+
     public function show(Member $member)
     {
         //
@@ -149,6 +152,10 @@ class MemberController extends Controller
      */
     public function destroy(Member $member)
     {
-        //
+        $member->delete();
+        return [
+            "status" => true,
+            "message" => "Data Berhasil dihapus"
+        ];
     }
 }

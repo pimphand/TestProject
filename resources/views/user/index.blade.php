@@ -4,15 +4,12 @@
 <div class="container-fluid">
 
     <!-- Page Heading -->
-    <h1 class="h3 mb-2 text-gray-800">List Member</h1>
+    <h1 class="h3 mb-2 text-gray-800">List user</h1>
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            @permission('member-create')
-            <button class="btn btn-info btn-sm" id="add"><i class="fa fa-plus"></i> Tambah Member</button>
-            @endpermission
-            @permission('member-import')
-            <button class="btn btn-info btn-sm" id="import_open"><i class="fa fa-plus"></i> Import</button>
+            @permission('users-create')
+            <button class="btn btn-info btn-sm" id="add"><i class="fa fa-plus"></i> Tambah user</button>
             @endpermission
         </div>
         <div class="card-body">
@@ -21,11 +18,8 @@
                     <thead>
                         <tr>
                             <th>Nama</th>
-                            <th>Group</th>
-                            <th>Alamat</th>
-                            <th>No HP</th>
                             <th>Email</th>
-                            <th>Foto</th>
+                            <th>Role</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -44,36 +38,24 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="form" method="post" enctype="multipart/form-data" action="{{ route('member.store') }}">
+                <form id="form" method="post" enctype="multipart/form-data" action="{{ route('user.store') }}">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <input type="text" class="form-control member_id" name="id" id="member_id" hidden>
+                            <input type="text" class="form-control user_id" name="id" id="user_id" hidden>
                             <label for="exampleInputEmail1">Name</label>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Enter name">
                             <div class="text-danger" id="error-name"></div>
                         </div>
                         <div class="form-group">
                             <label for="exampleInputEmail1">Group</label>
-                            <select type="text" class="form-control" name="group_id" id="group_id"
-                                placeholder="Enter group_id">
+                            <select type="text" class="form-control" name="role" id="role" placeholder="Enter group_id">
                                 <option value="" hidden selected>Pilih Group</option>
-                                @foreach ($groups as $group)
-                                <option value="{{ $group->id }}">{{ $group->name }} | {{ $group->city }}</option>
+                                @foreach ($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
                                 @endforeach
                             </select>
-                            <div class="text-danger" id="error-group_id"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Alamat</label>
-                            <input type="text" class="form-control" name="address" id="address"
-                                placeholder="Enter address">
-                            <div class="text-danger" id="error-address"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Nomor Telepon</label>
-                            <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone">
-                            <div class="text-danger" id="error-phone"></div>
+                            <div class="text-danger" id="error-role"></div>
                         </div>
                         <div class="form-group">
                             <label for="exampleInputEmail1">Email</label>
@@ -81,41 +63,15 @@
                             <div class="text-danger" id="error-email"></div>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Foto</label>
-                            <input type="file" class="form-control" name="file" id="file" placeholder="Enter picture">
-                            <div class="text-danger" id="error-file"></div>
+                            <label for="exampleInputEmail1">Password</label>
+                            <input type="password" class="form-control" name="password" id="password"
+                                placeholder="Enter Password">
+                            <div class="text-danger" id="error-password"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                         <button type="button" id="save" class="btn btn-primary">Save changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="import" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="title">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form id="form" method="post" enctype="multipart/form-data" action="{{ route('member.import') }}">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">File CSV</label>
-                            <input type="file" class="form-control" name="file" id="file" placeholder="Enter picture">
-                            <div class="text-danger" id="error-file"></div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -138,34 +94,21 @@
     table()
   function table(){
   var ta =  $('#dataTable').DataTable({
-        ajax: '{{ route("member.data") }}',
+        ajax: '{{ route("user.data") }}',
         columns: [
             { data: 'name' },
-            { data: 'group.name' },
-            { data: 'address' },
-            { data: 'phone' },
             { data: 'email' },
-            { data: 'picture' },
+            { data: 'role.name' },
             { data: 'id' },
         ],
         columnDefs: [
-            { targets: 5,
-                render: function(data) {
-                    if (data == null) {
-                       return '<img src="{{ Avatar::create("T S")->toBase64() }}" width="100px">';
-                    } else {
-                        return '<img src="{{ asset("storage/member") }}/'+data+'" width="100px">';
-                    }
-                    
-                }
-            },
-            { targets: 6,
+            { targets: 3,
                 render: function(id) {
                     return `
-                    @permission('member-update')
+                    @permission('users-update')
                     <button class="btn btn-info edit"><i class="fa fa-edit"></i></button>
                     @endpermission
-                    @permission('member-delete')
+                    @permission('users-delete')
                     <button class="btn btn-danger delete" data-id"${id}"><i class="fa fa-trash"></i></button>
                     @endpermission
                     `
@@ -182,17 +125,15 @@
         $("#save").text("Update Data");
         // form
         $("#name").val(data.name);
-        $("#group_id").val(data.group_id);
-        $("#address").val(data.address);
-        $("#phone").val(data.phone);
+        $("#role").val(data.role_id);
         $("#email").val(data.email);
-        $(".member_id").val(data.id);
-        $("#file").val(data.picture);
+        $(".user_id").val(data.id);
+        $("#password").val("");
     });
 
     $("#dataTable").on("click",'.delete', function(){
         var data= ta.row($(this).parents('tr')).data();
-        let url = "{{ route('member.destroy',':id') }}";
+        let url = "{{ route('user.destroy',':id') }}";
         url = url.replace(':id',data.id);
         Swal.fire({
             title: 'Apakah anda yakin?',
@@ -244,22 +185,20 @@
    $("#add").click(function (e) { 
         e.preventDefault();
         $("#data").modal("show");
-        $("#title").text("Tambah Member");
+        $("#title").text("Tambah user");
         $("#save").text("Simpan");
         // form
         $("#name").val("");
-        $("#group_id").val("");
-        $("#address").val("");
-        $("#phone").val("");
+        $("#role").val("");
         $("#email").val("");
-        $("#file").val("");
-        $("#member_id").val("");
+        $("#user_id").val("");
+        $("#password").val("");
    });
 
    $("#import_open").click(function (e) { 
         e.preventDefault();
         $("#import").modal("show");
-        $("#title").text("Import Member");
+        $("#title").text("Import user");
         $("#button_import").text("Simpan");
    });
 
@@ -311,14 +250,4 @@
    });
   });
 </script>
-@if(Session::has('success'))
-<script>
-    Swal.fire({
-        title: 'Berhasil!',
-        text: 'Import Member berhasil',
-        icon: 'success',
-        confirmButtonText: 'Ok'
-    });
-</script>
-@endif
 @endsection
